@@ -1,6 +1,6 @@
 Paper Dreams
 
-A simple side-scroller game made with Python and Pygame.
+A simple side-scroller game made with Python, Pygame and Paper.
 
 ## How to Run
 
