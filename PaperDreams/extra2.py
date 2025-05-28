@@ -4,6 +4,12 @@ import random
 
 pygame.init()
 
+#Added Music
+pygame.mixer.init()
+pygame.mixer.music.load("music/paperdreams.mp3") 
+pygame.mixer.music.set_volume(0.5) 
+pygame.mixer.music.play(-1)
+
 # Screen setup
 screen = pygame.display.set_mode((750, 600))
 pygame.display.set_caption("Paper Dreams")
