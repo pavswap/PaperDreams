@@ -30,9 +30,9 @@ jobs:
       - name: Build executable
         run: |
           pyinstaller --onefile --name PaperDreams \
-            --add-data "PaperDreams/graphics:graphics" \
-            --add-data "PaperDreams/music:music" \
-            PaperDreams/main.py
+            --add-data "PaperDreams/graphics$(python -c 'import os; print(os.pathsep)')graphics" \
+            --add-data "PaperDreams/music$(python -c 'import os; print(os.pathsep)')music" \
+            PaperDreams/extra2.py
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
