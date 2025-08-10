@@ -1,9 +1,10 @@
-name: Build
+name: Build and Release PaperDreams
 
 on:
   push:
     tags:
-      - 'v*'
+      - 'v*'   # Trigger only when pushing a version tag like v1.0.0
+  workflow_dispatch:  # Allow manual runs
 
 jobs:
   build:
@@ -14,7 +15,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Python
@@ -25,35 +26,50 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pygame pyinstaller
+          pip install pyinstaller pygame
 
-      - name: Build executable
+      - name: Build executable with PyInstaller
         run: |
-          pyinstaller --onefile --name PaperDreams \
-            --add-data "PaperDreams/graphics$(python -c 'import os; print(os.pathsep)')graphics" \
-            --add-data "PaperDreams/music$(python -c 'import os; print(os.pathsep)')music" \
-            PaperDreams/extra2.py
+          python - <<'EOF'
+          import os
+          import PyInstaller.__main__
 
-      - name: Upload build artifact
+          sep = os.pathsep
+          PyInstaller.__main__.run([
+              "--onefile",
+              "--name", "PaperDreams",
+              f"--add-data=PaperDreams/graphics{sep}graphics",
+              f"--add-data=PaperDreams/music{sep}music",
+              "PaperDreams/extra2.py"
+          ])
+          EOF
+
+      - name: Archive build
+        run: |
+          mkdir dist_upload
+          cd dist
+          zip -r ../dist_upload/PaperDreams-${{ matrix.os }}.zip .
+        shell: bash
+
+      - name: Upload build as artifact
         uses: actions/upload-artifact@v4
         with:
           name: PaperDreams-${{ matrix.os }}
-          path: dist/*
+          path: dist_upload/*
 
   release:
     name: Create GitHub Release
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Download artifacts
+      - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
-          path: dist
+          path: ./release_files
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          files: dist/**/*
-          tag_name: ${{ github.ref_name }}
+          files: ./release_files/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
