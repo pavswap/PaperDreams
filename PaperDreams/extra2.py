@@ -3,37 +3,41 @@ import sys
 import random
 import os
 
-pygame.init()
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 
-#Added Music
+pygame.init()
 pygame.mixer.init()
-pygame.mixer.music.load("music/paperdreams.mp3") 
-pygame.mixer.music.set_volume(0.5) 
+
+pygame.mixer.music.load(resource_path("music/paperdreams.mp3"))
+pygame.mixer.music.set_volume(0.5)
 pygame.mixer.music.play(-1)
-# Screen setup
+
 screen = pygame.display.set_mode((750, 600))
 pygame.display.set_caption("Paper Dreams")
 clock = pygame.time.Clock()
 font = pygame.font.SysFont(None, 40)
 
-# Load images
-menu_background = pygame.image.load("graphics/main_menu.png").convert()
+menu_background = pygame.image.load(resource_path("graphics/main_menu.png")).convert()
 menu_background = pygame.transform.scale(menu_background, (750, 600))
 
-sky_image = pygame.image.load("graphics/background.png").convert()
+sky_image = pygame.image.load(resource_path("graphics/background.png")).convert()
 sky_image = pygame.transform.scale(sky_image, (750, 500))
 
-ground_image = pygame.image.load("graphics/floor.png").convert()
+ground_image = pygame.image.load(resource_path("graphics/floor.png")).convert()
 ground_image = pygame.transform.scale(ground_image, (750, 100))
 
-player_image = pygame.image.load("graphics/player_final.png").convert_alpha()
+player_image = pygame.image.load(resource_path("graphics/player_final.png")).convert_alpha()
 player_image = pygame.transform.scale(player_image, (50, 100))
 player_rect = player_image.get_rect(midbottom=(100, 500))
 
-enemy_image = pygame.image.load("graphics/enemy_final.png").convert_alpha()
+enemy_image = pygame.image.load(resource_path("graphics/enemy_final.png")).convert_alpha()
 enemy_image = pygame.transform.scale(enemy_image, (50, 100))
 
-# Enemy class
 class Enemy:
     def __init__(self, image, start_x, y_pos, speed_range=(3, 10), active_chance=1.0, always_active=False):
         self.image = image
@@ -64,7 +68,6 @@ class Enemy:
     def check_collision(self, player_rect):
         return self.active and self.rect.colliderect(player_rect)
 
-# High score setup
 highscore_file = "highscore.txt"
 
 def load_high_score():
@@ -82,36 +85,29 @@ def save_high_score(score):
 
 high_score = load_high_score()
 
-# Instantiate enemies
 enemy1 = Enemy(enemy_image, start_x=800, y_pos=500, speed_range=(3, 10), active_chance=1.0)
 enemy2 = Enemy(enemy_image, start_x=1000, y_pos=500, speed_range=(3, 10), active_chance=0.5)
 enemy3 = Enemy(enemy_image, start_x=900, y_pos=500, speed_range=(13, 15), active_chance=0.5)
 
-# Flying enemy appears only after score > 30
 flying_enemy = Enemy(enemy_image, start_x=1200, y_pos=400, speed_range=(7, 10), active_chance=1.0, always_active=True)
-flying_enemy.active = False  # Initially inactive
+flying_enemy.active = False
 
 enemies = [enemy1, enemy2, enemy3]
 
-# Player physics
 player_gravity = 0
 jump_force = -25
-player_speed = 5  # Added horizontal speed
+player_speed = 5
 
-# Score
 score = 0
 score_timer = pygame.USEREVENT + 1
 pygame.time.set_timer(score_timer, 1000)
 
-# Game states
 game_active = False
 menu_active = True
 
-# Buttons
 start_button = pygame.Rect(375, 250, 200, 60)
 quit_button = pygame.Rect(375, 350, 200, 60)
 
-# Game loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -123,17 +119,13 @@ while True:
                 if start_button.collidepoint(event.pos):
                     game_active = True
                     menu_active = False
-
                     player_rect.midbottom = (100, 500)
                     player_gravity = 0
                     score = 0
-
                     for i, enemy in enumerate(enemies):
                         enemy.reset(800 + i * 200)
-
                     flying_enemy.reset(1200)
                     flying_enemy.active = False
-
                 elif quit_button.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
@@ -148,38 +140,32 @@ while True:
         screen.blit(menu_background, (0, 0))
         pygame.draw.rect(screen, 'gray', start_button)
         pygame.draw.rect(screen, 'gray', quit_button)
-
         start_text = font.render("Start Game", True, 'white')
         quit_text = font.render("Quit Game", True, 'white')
         screen.blit(start_text, (start_button.x + 40, start_button.y + 15))
         screen.blit(quit_text, (quit_button.x + 50, quit_button.y + 15))
-
         highscore_text = font.render(f"High Score: {high_score}", True, 'white')
         screen.blit(highscore_text, (10, 10))
 
     elif game_active:
-        # Input
         keys = pygame.key.get_pressed()
 
-        # Jump
         if keys[pygame.K_SPACE] and player_rect.bottom >= 500:
             player_gravity = jump_force
 
-        # Move left
-        if keys[pygame.K_a]:
-            player_rect.x -= player_speed
+        if keys[pygame.K_DOWN]:
+            player_gravity += 3
 
-        # Move right
-        if keys[pygame.K_d]:
+        if keys[pygame.K_LEFT]:
+            player_rect.x -= player_speed
+        if keys[pygame.K_RIGHT]:
             player_rect.x += player_speed
 
-        # Keep player within screen
         if player_rect.left < 0:
             player_rect.left = 0
         if player_rect.right > 750:
             player_rect.right = 750
 
-        # Gravity
         player_gravity += 1
         if player_gravity > 20:
             player_gravity = 20
@@ -189,13 +175,11 @@ while True:
             player_rect.bottom = 500
             player_gravity = 0
 
-        # Update enemies
         for enemy in enemies:
             enemy.update()
         if flying_enemy.active:
             flying_enemy.update()
 
-        # Collision check
         collision = False
         for enemy in enemies:
             if enemy.check_collision(player_rect):
@@ -210,7 +194,6 @@ while True:
             game_active = False
             menu_active = True
 
-        # Draw everything
         screen.blit(sky_image, (0, 0))
         screen.blit(ground_image, (0, 500))
 
@@ -228,9 +211,3 @@ while True:
 
     pygame.display.update()
     clock.tick(60)
-
-
-
-
-
-
