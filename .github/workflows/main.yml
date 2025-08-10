@@ -1,10 +1,10 @@
-name: Build and Release PaperDreams
+name: Build
 
 on:
   push:
     tags:
-      - 'v*'   # Trigger only when pushing a version tag like v1.0.0
-  workflow_dispatch:  # Allow manual runs
+      - 'v*'
+  workflow_dispatch:
 
 jobs:
   build:
@@ -12,7 +12,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
       - name: Checkout code
@@ -28,23 +28,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller pygame
 
-      - name: Build executable with PyInstaller
+      - name: Build executable (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
-          python - <<'EOF'
-          import os
-          import PyInstaller.__main__
+          pyinstaller --onefile \
+            --name PaperDreams \
+            --add-data "PaperDreams/music:music" \
+            --add-data "PaperDreams/graphics:graphics" \
+            PaperDreams/extra2.py
 
-          sep = os.pathsep
-          PyInstaller.__main__.run([
-              "--onefile",
-              "--name", "PaperDreams",
-              f"--add-data=PaperDreams/graphics{sep}graphics",
-              f"--add-data=PaperDreams/music{sep}music",
-              "PaperDreams/extra2.py"
-          ])
-          EOF
+      - name: Build executable (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          pyinstaller --onefile `
+            --name PaperDreams `
+            --add-data "PaperDreams/music;music" `
+            --add-data "PaperDreams/graphics;graphics" `
+            PaperDreams/extra2.py
 
-      - name: Archive build
+      - name: Package build
         run: |
           mkdir dist_upload
           cd dist
@@ -67,9 +69,11 @@ jobs:
         with:
           path: ./release_files
 
-      - name: Create Release
+      - name: Create or update release
         uses: softprops/action-gh-release@v2
         with:
           files: ./release_files/**/*
+          tag_name: ${{ github.ref_name }}
+          overwrite: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
