@@ -46,12 +46,19 @@ jobs:
             --add-data "PaperDreams/graphics;graphics" `
             PaperDreams/extra2.py
 
-      - name: Package build
+      # Package build per OS
+      - name: Package build (Linux/macOS)
+        if: runner.os != 'Windows'
         run: |
           mkdir dist_upload
           cd dist
           zip -r ../dist_upload/PaperDreams-${{ matrix.os }}.zip .
-        shell: bash
+
+      - name: Package build (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          mkdir dist_upload
+          Compress-Archive -Path dist\* -DestinationPath dist_upload\PaperDreams-${{ matrix.os }}.zip
 
       - name: Upload build as artifact
         uses: actions/upload-artifact@v4
