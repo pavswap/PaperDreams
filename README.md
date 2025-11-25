@@ -1,4 +1,5 @@
 Paper Dreams
+<img width="960" height="540" alt="Paper Dreams" src="https://github.com/user-attachments/assets/8d35feb1-929f-446c-a8f2-588b3280de43" />
 
 A simple side-scroller game made with Python, Pygame and Paper.
 
