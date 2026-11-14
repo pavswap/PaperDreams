@@ -1,4 +1,5 @@
-<img width="760" height="360" alt="Paper Dreams" src="https://github.com/user-attachments/assets/8d35feb1-929f-446c-a8f2-588b3280de43" />
+<img width="1406" height="1119" alt="Winking Anime Girl Among Crimson Clouds" src="https://github.com/user-attachments/assets/8969b016-54fb-4cf5-836a-5f6c58063f2f" />
+
 
 A simple side-scroller game made with Python, Pygame and Paper.
 
@@ -6,5 +7,8 @@ A simple side-scroller game made with Python, Pygame and Paper.
 
 1. Install Python: https://www.python.org/
 2. Install Pygame:
+
+   or
+Run the HTML File on any browser
 ```bash
 pip install pygame
