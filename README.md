@@ -1,4 +1,4 @@
-<img width="914" height="727" alt="Winking Anime Girl Among Crimson Clouds" src="https://github.com/user-attachments/assets/8969b016-54fb-4cf5-836a-5f6c58063f2f" />
+<img width="633" height="504" alt="Winking Anime Girl Among Crimson Clouds" src="https://github.com/user-attachments/assets/8969b016-54fb-4cf5-836a-5f6c58063f2f" />
 
 A simple side-scroller game made with Python, Pygame and Paper.
 
