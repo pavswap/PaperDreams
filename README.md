@@ -6,8 +6,9 @@ A simple side-scroller game made with Python, Pygame and Paper.
 
 1. Install Python: https://www.python.org/
 2. Install Pygame:
-
-   or
-Run the HTML File on any browser
 ```bash
 pip install pygame
+```
+   or
+Play the [PaperDreams WebPort](https://pavswap.github.io/PaperDreams/) on the browser
+
